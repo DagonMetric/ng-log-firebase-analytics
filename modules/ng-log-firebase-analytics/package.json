@@ -1,0 +1,43 @@
+{
+  "name": "@dagonmetric/ng-log-firebase-analytics",
+  "version": "0.0.0-PLACEHOLDER",
+  "description": "Angular Firebase Analytics implementation for @dagonmetric/ng-log.",
+  "author": "DagonMetric",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com/Dagonmetric/ng-log-firebase-analytics.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dagonmetric/ng-log-firebase-analytics/issues"
+  },
+  "homepage": "https://github.com/dagonmetric/ng-log-firebase-analytics",
+  "keywords": [
+    "ng-log",
+    "angular-firebase-analytics",
+    "angular-firebase",
+    "angular-analytics",
+    "firebase-analytics",
+    "google-analytics",
+    "angular-log-service",
+    "angular-logging",
+    "angular-log",
+    "angular-telemetry-client",
+    "analytics",
+    "logging",
+    "log",
+    "telemetry-client",
+    "telemetry",
+    "angular"
+  ],
+  "sideEffects": false,
+  "dependencies": {
+    "tslib": "^1.10.0"
+  },
+  "peerDependencies": {
+    "@angular/common": "^8.0.0-beta.0",
+    "@angular/core": "^8.0.0-beta.0",
+    "@dagonmetric/ng-log": "^2.2.0",
+    "firebase": "^7.2.0"
+  }
+}
