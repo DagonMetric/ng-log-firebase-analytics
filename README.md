@@ -46,8 +46,12 @@ import { FirebaseAnalyticsLoggerModule } from '@dagonmetric/ng-log-firebase-anal
     LogModule,
     FirebaseAnalyticsLoggerModule.config({
       firebase : {
+          apiKey: '<your_firebase_app_api_key>',
+          projectId: '<your_firebase_project_id>',
+          appId: '<your_firebase_app_id>',
           // Replace 'G-1111111111' with your measurementId
-          measurementId: 'G-1111111111'
+          measurementId: 'G-1111111111',
+          // ...
       }
     })
   ]
