@@ -2,7 +2,6 @@
 
 [![Build Status](https://dev.azure.com/DagonMetric/ng-log-firebase-analytics/_apis/build/status/DagonMetric.ng-log-firebase-analytics?branchName=master)](https://dev.azure.com/DagonMetric/ng-log-firebase-analytics/_build/latest?definitionId=14&branchName=master)
 [![CircleCI](https://circleci.com/gh/DagonMetric/ng-log-firebase-analytics.svg?style=svg)](https://circleci.com/gh/DagonMetric/ng-log-firebase-analytics)
-[![codecov](https://codecov.io/gh/DagonMetric/ng-log-firebase-analytics/branch/master/graph/badge.svg)](https://codecov.io/gh/DagonMetric/ng-log-firebase-analytics)
 [![npm version](https://img.shields.io/npm/v/@dagonmetric/ng-log-firebase-analytics.svg)](https://www.npmjs.com/package/@dagonmetric/ng-log-firebase-analytics)
 [![Gitter](https://badges.gitter.im/DagonMetric/general.svg)](https://gitter.im/DagonMetric/general?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
