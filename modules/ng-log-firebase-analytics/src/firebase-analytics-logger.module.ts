@@ -13,19 +13,11 @@ import { LOGGER_PROVIDER } from '@dagonmetric/ng-log';
 import { FIREBASE_ANALYTICS_LOGGER_OPTIONS_TOKEN, FirebaseAnalyticsLoggerOptions } from './firebase-analytics-logger-options';
 import { FirebaseAnalyticsLoggerProvider } from './firebase-analytics-logger-provider';
 
-import { FIREBASE_APP, FirebaseApp } from './firebase-app';
+import { FIREBASE_APP } from './firebase-app';
+import { firebaseAppFactory } from './firebase-app-factory';
 
-// This import loads the firebase namespace along with all its type information.
-import * as firebase from 'firebase/app';
-
-export function firebaseAppFactory(options: FirebaseAnalyticsLoggerOptions): FirebaseApp {
-    const appName = options.appName || '[DEFAULT]';
-    const firebaseOptions = options.firebase;
-
-    const existingApp = firebase.apps.filter(app => app && app.name === appName)[0];
-
-    return (existingApp || firebase.initializeApp(firebaseOptions, appName)) as FirebaseApp;
-}
+// tslint:disable-next-line: no-import-side-effect
+import 'firebase/analytics';
 
 /**
  * The `NGMODULE` for providing `LOGGER_PROVIDER` with `FirebaseAnalyticsLoggerProvider`.

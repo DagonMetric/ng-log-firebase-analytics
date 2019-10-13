@@ -6,17 +6,11 @@
  * found under the LICENSE file in the root directory of this source tree.
  */
 
-import { NgZone } from '@angular/core';
-
 import { EventInfo, EventTimingInfo, Logger, LogInfo, LogLevel, PageViewInfo, PageViewTimingInfo } from '@dagonmetric/ng-log';
-
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
 
 import { analytics } from 'firebase/app';
 
 import { UserInfo } from './user-info';
-import { runOutsideAngular } from './zone-helper';
 
 /**
  * Firebase analytics implementation for `Logger`.
@@ -26,30 +20,32 @@ export class FirebaseAnalyticsLogger extends Logger {
 
     constructor(
         readonly name: string,
-        private readonly _zone: NgZone,
         private readonly _userInfo: UserInfo,
-        private readonly _analytics$?: Observable<analytics.Analytics>) {
+        private readonly _analytics?: analytics.Analytics) {
         super();
     }
 
     log(logLevel: LogLevel, message: string | Error, logInfo?: LogInfo): void {
-        if (!this._analytics$ || logLevel === LogLevel.None) {
+        if (!this._analytics || logLevel === LogLevel.None) {
             return;
         }
 
         // tslint:disable-next-line: no-any
         const properties: { [key: string]: any } = logInfo && logInfo.properties ? { ...logInfo.properties } : {};
 
+        if (this._userInfo.userId) {
+            properties.user_id = this._userInfo.userId;
+        }
+
+        if (this._userInfo.accountId) {
+            properties.account_id = this._userInfo.accountId;
+        }
+
         if (logLevel === LogLevel.Error || logLevel === LogLevel.Critical) {
             properties.description = typeof message === 'string' ? message : `${message}`;
             properties.fatal = logLevel === LogLevel.Critical;
 
-            this._analytics$.pipe(
-                tap((analyticsService) => {
-                    analyticsService.logEvent('exception', properties);
-                }),
-                runOutsideAngular(this._zone)
-            ).subscribe();
+            this._analytics.logEvent('exception', properties);
         } else {
             let level: string;
             if (logLevel === LogLevel.Trace) {
@@ -65,12 +61,7 @@ export class FirebaseAnalyticsLogger extends Logger {
             properties.message = typeof message === 'string' ? message : `${message}`;
             properties.level = level;
 
-            this._analytics$.pipe(
-                tap((analyticsService) => {
-                    analyticsService.logEvent('trace', properties);
-                }),
-                runOutsideAngular(this._zone)
-            ).subscribe();
+            this._analytics.logEvent('trace', properties);
         }
     }
 
@@ -92,12 +83,6 @@ export class FirebaseAnalyticsLogger extends Logger {
         }
 
         this._eventTiming.set(name, +new Date());
-
-        if (this._analytics$) {
-            this._analytics$.pipe(
-                runOutsideAngular(this._zone)
-            ).subscribe();
-        }
     }
 
     stopTrackPage(name?: string, pageViewInfo?: PageViewTimingInfo): void {
@@ -120,7 +105,7 @@ export class FirebaseAnalyticsLogger extends Logger {
 
         this._eventTiming.delete(name);
 
-        if (!this._analytics$) {
+        if (!this._analytics) {
             return;
         }
 
@@ -128,41 +113,25 @@ export class FirebaseAnalyticsLogger extends Logger {
         const properties = this.getMappedPageViewProps(pageViewInfo);
         properties.page_title = name;
 
-        this._analytics$.pipe(
-            tap((analyticsService) => {
-                analyticsService.logEvent('timing_complete', {
-                    ...properties,
-                    name: 'page_view',
-                    value: duration
-                });
-            }),
-            runOutsideAngular(this._zone)
-        ).subscribe();
+        this._analytics.logEvent('timing_complete', {
+            ...properties,
+            name: 'page_view',
+            value: duration
+        });
     }
 
     trackPageView(pageViewInfo?: PageViewInfo): void {
-        if (!this._analytics$) {
+        if (!this._analytics) {
             return;
         }
 
-        if (!pageViewInfo) {
-            this._analytics$.pipe(
-                runOutsideAngular(this._zone)
-            ).subscribe();
-        } else {
-            const properties = this.getMappedPageViewProps(pageViewInfo);
-            if (pageViewInfo.name) {
-                properties.page_title = pageViewInfo.name;
-            }
-
-            this._analytics$.pipe(
-                tap((analyticsService) => {
-                    // tslint:disable-next-line: no-any
-                    analyticsService.logEvent('page_view' as any, properties);
-                }),
-                runOutsideAngular(this._zone)
-            ).subscribe();
+        const properties = this.getMappedPageViewProps(pageViewInfo);
+        if (pageViewInfo && pageViewInfo.name) {
+            properties.page_title = pageViewInfo.name;
         }
+
+        // tslint:disable-next-line: no-any
+        this._analytics.logEvent('page_view' as any, properties);
     }
 
     startTrackEvent(name: string): void {
@@ -173,12 +142,6 @@ export class FirebaseAnalyticsLogger extends Logger {
         }
 
         this._eventTiming.set(name, +new Date());
-
-        if (this._analytics$) {
-            this._analytics$.pipe(
-                runOutsideAngular(this._zone)
-            ).subscribe();
-        }
     }
 
     stopTrackEvent(name: string, eventInfo?: EventTimingInfo): void {
@@ -191,39 +154,28 @@ export class FirebaseAnalyticsLogger extends Logger {
 
         this._eventTiming.delete(name);
 
-        if (!this._analytics$) {
+        if (!this._analytics) {
             return;
         }
 
         const duration = Math.max(+new Date() - start, 0);
         const properties = this.getMappedEventProps(eventInfo);
 
-        this._analytics$.pipe(
-            tap((analyticsService) => {
-                analyticsService.logEvent('timing_complete', {
-                    ...properties,
-                    name,
-                    value: duration
-                });
-            }),
-            runOutsideAngular(this._zone)
-        ).subscribe();
-
+        this._analytics.logEvent('timing_complete', {
+            ...properties,
+            name,
+            value: duration
+        });
     }
 
     trackEvent(eventInfo: EventInfo): void {
-        if (!this._analytics$) {
+        if (!this._analytics) {
             return;
         }
 
         const properties = this.getMappedEventProps(eventInfo);
 
-        this._analytics$.pipe(
-            tap((analyticsService) => {
-                analyticsService.logEvent(eventInfo.name, eventInfo.properties || properties);
-            }),
-            runOutsideAngular(this._zone)
-        ).subscribe();
+        this._analytics.logEvent(eventInfo.name, eventInfo.properties || properties);
     }
 
     flush(): void {

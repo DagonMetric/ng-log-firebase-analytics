@@ -9,9 +9,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Inject, Injectable, NgZone, PLATFORM_ID } from '@angular/core';
 
-import { from, Observable } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
-
 import {
     EventInfo,
     EventTimingInfo,
@@ -27,7 +24,7 @@ import { analytics } from 'firebase/app';
 
 import { FirebaseAnalyticsLogger } from './firebase-analytics-logger';
 import { FIREBASE_ANALYTICS_LOGGER_OPTIONS_TOKEN, FirebaseAnalyticsLoggerOptions } from './firebase-analytics-logger-options';
-import { FIREBASE_APP, FirebaseApp } from './firebase-app';
+import { firebaseAppFactory } from './firebase-app-factory';
 import { UserInfo } from './user-info';
 
 /**
@@ -38,7 +35,7 @@ import { UserInfo } from './user-info';
 })
 export class FirebaseAnalyticsLoggerProvider extends Logger implements LoggerProvider {
     private _currentLogger?: FirebaseAnalyticsLogger;
-    private readonly _analytics$?: Observable<analytics.Analytics>;
+    private readonly _analytics?: analytics.Analytics;
     private readonly _userInfo: UserInfo = {};
 
     get name(): string {
@@ -52,35 +49,32 @@ export class FirebaseAnalyticsLoggerProvider extends Logger implements LoggerPro
 
         this._currentLogger = new FirebaseAnalyticsLogger(
             '',
-            this._zone,
             this._userInfo,
-            this._analytics$);
+            this._analytics);
 
         return this._currentLogger;
     }
 
     constructor(
-        @Inject(FIREBASE_APP) app: FirebaseApp,
         @Inject(PLATFORM_ID) platformId: Object,
         private readonly _zone: NgZone,
-        @Inject(FIREBASE_ANALYTICS_LOGGER_OPTIONS_TOKEN) private readonly _options: FirebaseAnalyticsLoggerOptions) {
+        @Inject(FIREBASE_ANALYTICS_LOGGER_OPTIONS_TOKEN) options: FirebaseAnalyticsLoggerOptions) {
         super();
         const isBrowser = isPlatformBrowser(platformId);
-        if (isBrowser && this._options.firebase && this._options.firebase.measurementId) {
-            const analyticsModule = from(import('firebase/analytics'));
-            this._analytics$ = analyticsModule.pipe(
-                map(() => this._zone.runOutsideAngular(() => app.analytics())),
-                shareReplay(1)
-            );
+        if (isBrowser && options.firebase && options.firebase.measurementId) {
+            this._analytics = this._zone.runOutsideAngular(() => {
+                const app = firebaseAppFactory(options);
+
+                return app.analytics();
+            });
         }
     }
 
     createLogger(category: string): Logger {
         return new FirebaseAnalyticsLogger(
             category,
-            this._zone,
             this._userInfo,
-            this._analytics$);
+            this._analytics);
     }
 
     setUserProperties(userId: string, accountId?: string): void {

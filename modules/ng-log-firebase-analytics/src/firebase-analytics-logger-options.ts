@@ -10,8 +10,13 @@ import { InjectionToken } from '@angular/core';
 
 export interface FirebaseOptions {
     measurementId: string;
-    // tslint:disable-next-line: no-any
-    [key: string]: any;
+    apiKey?: string;
+    authDomain?: string;
+    databaseURL?: string;
+    projectId?: string;
+    storageBucket?: string;
+    messagingSenderId?: string;
+    appId?: string;
 }
 
 export interface FirebaseAnalyticsLoggerOptions {

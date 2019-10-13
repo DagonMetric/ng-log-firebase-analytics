@@ -1,13 +1,17 @@
 {
   "$schema": "./node_modules/@dagonmetric/angular-build/src/schemas/schema.json#",
-  "libs": [{
-    "extends": "ngb:lib-default",
+  "libs": [
+    {
+      "extends": "ngb:lib-default",
       "name": "ng-log-firebase-analytics",
       "root": "modules/ng-log-firebase-analytics",
       "outputPath": "dist/packages/ng-log-firebase-analytics",
       "libraryName": "ngLog.firebaseAnalytics",
       "externals": {
-        "@dagonmetric/ng-log": "ngLog"
+        "@dagonmetric/ng-log": "ngLog",
+        "firebase": "firebase",
+        "firebase/app": "firebase",
+        "firebase/analytics": "firebase"
       },
       "envOverrides": {
         "prod": {
