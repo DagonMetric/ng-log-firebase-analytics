@@ -2,5 +2,4 @@
 
 | Date (UTC) | Version |  |  |
 | :-- | :-- | :--: | :-- |
-2019-07-15 | 2.1.1 | [release notes](v2.1.1/README.md)/[npm](https://www.npmjs.com/package/@dagonmetric/ng-log-firebase-analytics/v/2.1.1) | - |
-2019-07-02 | 2.1.0 | [release notes](v2.1.0/README.md)/[npm](https://www.npmjs.com/package/@dagonmetric/ng-log-firebase-analytics/v/2.1.0) | - |
+2019-10-13 | 1.0.0 | [release notes](v1.0.0/README.md)/[npm](https://www.npmjs.com/package/@dagonmetric/ng-log-firebase-analytics/v/1.0.0) | - |
