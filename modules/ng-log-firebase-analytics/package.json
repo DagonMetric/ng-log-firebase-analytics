@@ -13,14 +13,13 @@
   },
   "homepage": "https://github.com/dagonmetric/ng-log-firebase-analytics",
   "keywords": [
-    "ng-log",
     "angular-firebase-analytics",
-    "angular-firebase",
-    "angular-analytics",
     "firebase-analytics",
     "google-analytics",
-    "angular-log-service",
-    "angularfire",
+    "angular-firebase",
+    "firebase",
+    "angular-analytics",
+    "angular-logging-service",
     "angular-logging",
     "angular-log",
     "angular-telemetry-client",
@@ -29,7 +28,8 @@
     "log",
     "telemetry-client",
     "telemetry",
-    "angular"
+    "angular",
+    "typescript"
   ],
   "sideEffects": false,
   "dependencies": {
