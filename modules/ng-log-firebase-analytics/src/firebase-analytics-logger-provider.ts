@@ -56,6 +56,7 @@ export class FirebaseAnalyticsLoggerProvider extends Logger implements LoggerPro
     }
 
     constructor(
+        // tslint:disable-next-line: ban-types
         @Inject(PLATFORM_ID) platformId: Object,
         private readonly _zone: NgZone,
         @Inject(FIREBASE_ANALYTICS_LOGGER_OPTIONS_TOKEN) options: FirebaseAnalyticsLoggerOptions) {

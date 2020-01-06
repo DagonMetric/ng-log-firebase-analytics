@@ -34,6 +34,7 @@ export type FirebaseAnalytics = analytics.Analytics;
 
 export interface FirebaseApp {
     name: string;
+    // tslint:disable-next-line: ban-types
     options: Object;
 
     auth(): FirebaseAuth;
