@@ -1,11 +1,11 @@
 # Angular Firebase Analytics Implementation for NG-LOG
 
-[![Build Status](https://dev.azure.com/DagonMetric/ng-log-firebase-analytics/_apis/build/status/DagonMetric.ng-log-firebase-analytics?branchName=master)](https://dev.azure.com/DagonMetric/ng-log-firebase-analytics/_build/latest?definitionId=14&branchName=master)
-[![CircleCI](https://circleci.com/gh/DagonMetric/ng-log-firebase-analytics.svg?style=svg)](https://circleci.com/gh/DagonMetric/ng-log-firebase-analytics)
+[![GitHub Actions Status](https://github.com/DagonMetric/ng-log-firebase-analytics/workflows/Main%20Workflow/badge.svg)](https://github.com/DagonMetric/ng-log-firebase-analytics/actions)
+[![Azure Pipelines Status](https://dev.azure.com/DagonMetric/ng-log-firebase-analytics/_apis/build/status/DagonMetric.ng-log-firebase-analytics?branchName=master)](https://dev.azure.com/DagonMetric/ng-log-firebase-analytics/_build/latest?definitionId=14&branchName=master)
 [![npm version](https://img.shields.io/npm/v/@dagonmetric/ng-log-firebase-analytics.svg)](https://www.npmjs.com/package/@dagonmetric/ng-log-firebase-analytics)
 [![Gitter](https://badges.gitter.im/DagonMetric/general.svg)](https://gitter.im/DagonMetric/general?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-Firebase Analytics implementation for [@dagonmetric/ng-log](https://github.com/DagonMetric/ng-log).
+Firebase Analytics implementation for [DagonMetric/ng-log](https://github.com/DagonMetric/ng-log).
 
 ## Getting Started
 
@@ -124,6 +124,7 @@ export class AppComponent implements OnInit {
 * [ng-log](https://github.com/DagonMetric/ng-log) - Angular logging and telemetry service abstractions and some implementations
 * [ng-log-applicationinsights](https://github.com/DagonMetric/ng-log-applicationinsights) - Microsoft Azure Application Insights implementation for `ng-log`
 * [ng-log-gtag](https://github.com/DagonMetric/ng-log-gtag) - Angular Google Analytics (gtag.js) logger implementation for `ng-log`
+* [ng-log-facebook-analytics](https://github.com/DagonMetric/ng-log-facebook-analytics) - Facebook Pixel Analytics implementation for `ng-log`
 
 ## Feedback and Contributing
 
