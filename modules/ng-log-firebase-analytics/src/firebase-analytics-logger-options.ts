@@ -8,16 +8,7 @@
 
 import { InjectionToken } from '@angular/core';
 
-export interface FirebaseConfig {
-    apiKey?: string;
-    projectId?: string;
-    appId?: string;
-    authDomain?: string;
-    databaseURL?: string;
-    storageBucket?: string;
-    messagingSenderId?: string;
-    [key: string]: string | undefined;
-}
+import { FirebaseConfig } from './firebase-config';
 
 export interface FirebaseAnalyticsLoggerOptions {
     firebaseConfig: FirebaseConfig;
