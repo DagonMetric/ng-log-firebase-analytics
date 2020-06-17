@@ -6,46 +6,49 @@
  * found under the LICENSE file in the root directory of this source tree.
  */
 
-import { ModuleWithProviders, NgModule } from '@angular/core';
+import { APP_INITIALIZER, ModuleWithProviders, NgModule } from '@angular/core';
 
 import { LOGGER_PROVIDER } from '@dagonmetric/ng-log';
 
-import { FIREBASE_ANALYTICS_LOGGER_OPTIONS_TOKEN, FirebaseAnalyticsLoggerOptions } from './firebase-analytics-logger-options';
+import { FIREBASE_ANALYTICS_LOGGER_OPTIONS, FirebaseAnalyticsLoggerOptions } from './firebase-analytics-logger-options';
 import { FirebaseAnalyticsLoggerProvider } from './firebase-analytics-logger-provider';
 
-import { FIREBASE_APP } from './firebase-app';
-import { firebaseAppFactory } from './firebase-app-factory';
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+export function analyticsAppInitializerFactory(
+    loggerProvider: FirebaseAnalyticsLoggerProvider
+): () => Promise<boolean> {
+    const res = async () => loggerProvider.ensureInitialized().toPromise();
 
-// tslint:disable-next-line: no-import-side-effect
-import 'firebase/analytics';
+    return res;
+}
 
 /**
  * The `NGMODULE` for providing `LOGGER_PROVIDER` with `FirebaseAnalyticsLoggerProvider`.
  */
 @NgModule({
     providers: [
+        FirebaseAnalyticsLoggerProvider,
         {
             provide: LOGGER_PROVIDER,
-            useClass: FirebaseAnalyticsLoggerProvider,
+            useExisting: FirebaseAnalyticsLoggerProvider,
             multi: true
-        },
-        {
-            provide: FIREBASE_APP,
-            useFactory: firebaseAppFactory,
-            deps: [
-                FIREBASE_ANALYTICS_LOGGER_OPTIONS_TOKEN
-            ]
         }
     ]
 })
 export class FirebaseAnalyticsLoggerModule {
-    static config(options: FirebaseAnalyticsLoggerOptions): ModuleWithProviders {
+    static configure(options: FirebaseAnalyticsLoggerOptions): ModuleWithProviders<FirebaseAnalyticsLoggerModule> {
         return {
             ngModule: FirebaseAnalyticsLoggerModule,
             providers: [
                 {
-                    provide: FIREBASE_ANALYTICS_LOGGER_OPTIONS_TOKEN,
+                    provide: FIREBASE_ANALYTICS_LOGGER_OPTIONS,
                     useValue: options
+                },
+                {
+                    provide: APP_INITIALIZER,
+                    useFactory: analyticsAppInitializerFactory,
+                    deps: [FirebaseAnalyticsLoggerProvider],
+                    multi: true
                 }
             ]
         };
