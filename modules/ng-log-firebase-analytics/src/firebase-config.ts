@@ -14,5 +14,6 @@ export interface FirebaseConfig {
     databaseURL?: string;
     storageBucket?: string;
     messagingSenderId?: string;
+    measurementId?: string;
     [key: string]: string | undefined;
 }
