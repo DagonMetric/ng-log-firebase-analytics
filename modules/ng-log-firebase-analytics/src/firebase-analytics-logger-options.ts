@@ -22,8 +22,9 @@ export interface FirebaseConfig {
 export interface FirebaseAnalyticsLoggerOptions {
     firebaseConfig: FirebaseConfig;
     appName?: string;
+    analyticsCollectionEnabled?: boolean;
 }
 
-export const FIREBASE_ANALYTICS_LOGGER_OPTIONS_TOKEN = new InjectionToken<FirebaseAnalyticsLoggerOptions>(
+export const FIREBASE_ANALYTICS_LOGGER_OPTIONS = new InjectionToken<FirebaseAnalyticsLoggerOptions>(
     'FirebaseAnalyticsLoggerOptions'
 );
