@@ -72,10 +72,10 @@ export class FirebaseAnalyticsLoggerProvider extends Logger implements LoggerPro
         super();
         this.isBrowser = isPlatformBrowser(platformId);
 
-        if (this.options.firebaseConfig.messagingSenderId) {
-            const messagingSenderId = this.options.firebaseConfig.messagingSenderId;
+        if (this.options.firebaseConfig.measurementId) {
+            const measurementId = this.options.firebaseConfig.measurementId;
 
-            this.analytics$ = analyticsInstanceCache[messagingSenderId];
+            this.analytics$ = analyticsInstanceCache[measurementId];
             if (!this.analytics$) {
                 this.analytics$ = of(undefined).pipe(
                     observeOn(this.ngZone.runOutsideAngular(() => new ZoneScheduler(Zone.current))),
@@ -94,7 +94,7 @@ export class FirebaseAnalyticsLoggerProvider extends Logger implements LoggerPro
                     shareReplay({ bufferSize: 1, refCount: false })
                 );
 
-                analyticsInstanceCache[messagingSenderId] = this.analytics$;
+                analyticsInstanceCache[measurementId] = this.analytics$;
             }
         }
     }
