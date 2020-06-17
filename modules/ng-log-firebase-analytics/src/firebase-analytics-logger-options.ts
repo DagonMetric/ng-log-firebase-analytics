@@ -20,7 +20,7 @@ export interface FirebaseConfig {
 }
 
 export interface FirebaseAnalyticsLoggerOptions {
-    firebase: FirebaseConfig;
+    firebaseConfig: FirebaseConfig;
     appName?: string;
 }
 
