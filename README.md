@@ -1,35 +1,25 @@
 # Angular Firebase Analytics Implementation for NG-LOG
 
 [![GitHub Actions Status](https://github.com/DagonMetric/ng-log-firebase-analytics/workflows/Main%20Workflow/badge.svg)](https://github.com/DagonMetric/ng-log-firebase-analytics/actions)
-[![Azure Pipelines Status](https://dev.azure.com/DagonMetric/ng-log-firebase-analytics/_apis/build/status/DagonMetric.ng-log-firebase-analytics?branchName=master)](https://dev.azure.com/DagonMetric/ng-log-firebase-analytics/_build/latest?definitionId=14&branchName=master)
-[![npm version](https://img.shields.io/npm/v/@dagonmetric/ng-log-firebase-analytics.svg)](https://www.npmjs.com/package/@dagonmetric/ng-log-firebase-analytics)
+[![npm version](https://badge.fury.io/js/%40dagonmetric%2Fng-log-firebase-analytics.svg)](https://www.npmjs.com/package/@dagonmetric/ng-log-firebase-analytics)
 [![Gitter](https://badges.gitter.im/DagonMetric/general.svg)](https://gitter.im/DagonMetric/general?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 Firebase Analytics implementation for [DagonMetric/ng-log](https://github.com/DagonMetric/ng-log).
 
 ## Getting Started
 
-### Prerequisites
-
-The following npm packages are required before using this module.
-
-* @angular/common >= v8.0.0-beta.0
-* @angular/core >= v8.0.0-beta.0
-* @dagonmetric/ng-log >= v2.2.0
-* firebase >= v7.2.0
-
 ### Installation
 
 npm
 
 ```bash
-npm install @dagonmetric/ng-log-firebase-analytics
+npm install @dagonmetric/ng-log @dagonmetric/ng-log-firebase-analytics
 ```
 
 or yarn
 
 ```bash
-yarn add @dagonmetric/ng-log-firebase-analytics
+yarn add @dagonmetric/ng-log @dagonmetric/ng-log-firebase-analytics
 ```
 
 ### Module Setup (app.module.ts)
@@ -128,7 +118,7 @@ export class AppComponent implements OnInit {
 
 ## Feedback and Contributing
 
-Check out the [Contributing](https://github.com/DagonMetric/ng-log-firebase-analytics/blob/master/CONTRIBUTING.md) page to see the best places to log issues and start discussions.
+Check out the [Contributing](https://github.com/DagonMetric/ng-log-firebase-analytics/blob/master/CONTRIBUTING.md) page.
 
 ## License
 
