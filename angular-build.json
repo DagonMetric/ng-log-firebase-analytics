@@ -10,8 +10,8 @@
       "externals": {
         "@dagonmetric/ng-log": "ngLog",
         "firebase": "firebase",
-        "firebase/app": "firebase",
-        "firebase/analytics": "firebase"
+        "firebase/app": "firebase.app",
+        "firebase/analytics": "firebase.analytics"
       },
       "envOverrides": {
         "prod": {
@@ -25,6 +25,5 @@
         }
       }
     }
-  ],
-  "apps": []
+  ]
 }
