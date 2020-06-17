@@ -6,7 +6,15 @@
  * found under the LICENSE file in the root directory of this source tree.
  */
 
-import { EventInfo, EventTimingInfo, Logger, LogInfo, LogLevel, PageViewInfo, PageViewTimingInfo } from '@dagonmetric/ng-log';
+import {
+    EventInfo,
+    EventTimingInfo,
+    LogInfo,
+    LogLevel,
+    Logger,
+    PageViewInfo,
+    PageViewTimingInfo
+} from '@dagonmetric/ng-log';
 
 import { analytics } from 'firebase/app';
 
@@ -16,36 +24,37 @@ import { UserInfo } from './user-info';
  * Firebase analytics implementation for `Logger`.
  */
 export class FirebaseAnalyticsLogger extends Logger {
-    private readonly _eventTiming: Map<string, number> = new Map<string, number>();
+    private readonly eventTiming: Map<string, number> = new Map<string, number>();
 
     constructor(
         readonly name: string,
-        private readonly _userInfo: UserInfo,
-        private readonly _analytics?: analytics.Analytics) {
+        private readonly userInfo: UserInfo,
+        private readonly firebaseAnalytics?: analytics.Analytics
+    ) {
         super();
     }
 
     log(logLevel: LogLevel, message: string | Error, logInfo?: LogInfo): void {
-        if (!this._analytics || logLevel === LogLevel.None) {
+        if (!this.firebaseAnalytics || logLevel === LogLevel.None) {
             return;
         }
 
-        // tslint:disable-next-line: no-any
-        const properties: { [key: string]: any } = logInfo && logInfo.properties ? { ...logInfo.properties } : {};
+        const properties: { [key: string]: unknown } = logInfo && logInfo.properties ? { ...logInfo.properties } : {};
 
-        if (this._userInfo.userId) {
-            properties.user_id = this._userInfo.userId;
+        if (this.userInfo.userId) {
+            properties.user_id = this.userInfo.userId;
         }
 
-        if (this._userInfo.accountId) {
-            properties.account_id = this._userInfo.accountId;
+        if (this.userInfo.accountId) {
+            properties.account_id = this.userInfo.accountId;
         }
 
         if (logLevel === LogLevel.Error || logLevel === LogLevel.Critical) {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             properties.description = typeof message === 'string' ? message : `${message}`;
             properties.fatal = logLevel === LogLevel.Critical;
 
-            this._analytics.logEvent('exception', properties);
+            this.firebaseAnalytics.logEvent('exception', properties);
         } else {
             let level: string;
             if (logLevel === LogLevel.Trace) {
@@ -58,10 +67,11 @@ export class FirebaseAnalyticsLogger extends Logger {
                 level = 'warn';
             }
 
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             properties.message = typeof message === 'string' ? message : `${message}`;
             properties.level = level;
 
-            this._analytics.logEvent('trace', properties);
+            this.firebaseAnalytics.logEvent('trace', properties);
         }
     }
 
@@ -76,13 +86,15 @@ export class FirebaseAnalyticsLogger extends Logger {
             return;
         }
 
-        if (this._eventTiming.get(name) != null) {
-            console.error(`The 'startTrackPage' was called more than once for this event without calling stop, name: ${name}.`);
+        if (this.eventTiming.get(name) != null) {
+            console.error(
+                `The 'startTrackPage' was called more than once for this event without calling stop, name: ${name}.`
+            );
 
             return;
         }
 
-        this._eventTiming.set(name, +new Date());
+        this.eventTiming.set(name, +new Date());
     }
 
     stopTrackPage(name?: string, pageViewInfo?: PageViewTimingInfo): void {
@@ -96,16 +108,16 @@ export class FirebaseAnalyticsLogger extends Logger {
             return;
         }
 
-        const start = this._eventTiming.get(name);
+        const start = this.eventTiming.get(name);
         if (start == null || isNaN(start)) {
             console.error(`The 'stopTrackPage' was called without a corresponding start, name: ${name}.`);
 
             return;
         }
 
-        this._eventTiming.delete(name);
+        this.eventTiming.delete(name);
 
-        if (!this._analytics) {
+        if (!this.firebaseAnalytics) {
             return;
         }
 
@@ -113,7 +125,7 @@ export class FirebaseAnalyticsLogger extends Logger {
         const properties = this.getMappedPageViewProps(pageViewInfo);
         properties.page_title = name;
 
-        this._analytics.logEvent('timing_complete', {
+        this.firebaseAnalytics.logEvent('timing_complete', {
             ...properties,
             name: 'page_view',
             value: duration
@@ -121,7 +133,7 @@ export class FirebaseAnalyticsLogger extends Logger {
     }
 
     trackPageView(pageViewInfo?: PageViewInfo): void {
-        if (!this._analytics) {
+        if (!this.firebaseAnalytics) {
             return;
         }
 
@@ -130,38 +142,39 @@ export class FirebaseAnalyticsLogger extends Logger {
             properties.page_title = pageViewInfo.name;
         }
 
-        // tslint:disable-next-line: no-any
-        this._analytics.logEvent('page_view' as any, properties);
+        this.firebaseAnalytics.logEvent('page_view', properties);
     }
 
     startTrackEvent(name: string): void {
-        if (this._eventTiming.get(name) != null) {
-            console.error(`The 'startTrackEvent' was called more than once for this event without calling stop, name: ${name}.`);
+        if (this.eventTiming.get(name) != null) {
+            console.error(
+                `The 'startTrackEvent' was called more than once for this event without calling stop, name: ${name}.`
+            );
 
             return;
         }
 
-        this._eventTiming.set(name, +new Date());
+        this.eventTiming.set(name, +new Date());
     }
 
     stopTrackEvent(name: string, eventInfo?: EventTimingInfo): void {
-        const start = this._eventTiming.get(name);
+        const start = this.eventTiming.get(name);
         if (start == null || isNaN(start)) {
             console.error(`The 'stopTrackEvent' was called without a corresponding start, name: ${name}.`);
 
             return;
         }
 
-        this._eventTiming.delete(name);
+        this.eventTiming.delete(name);
 
-        if (!this._analytics) {
+        if (!this.firebaseAnalytics) {
             return;
         }
 
         const duration = Math.max(+new Date() - start, 0);
         const properties = this.getMappedEventProps(eventInfo);
 
-        this._analytics.logEvent('timing_complete', {
+        this.firebaseAnalytics.logEvent('timing_complete', {
             ...properties,
             name,
             value: duration
@@ -169,50 +182,46 @@ export class FirebaseAnalyticsLogger extends Logger {
     }
 
     trackEvent(eventInfo: EventInfo): void {
-        if (!this._analytics) {
+        if (!this.firebaseAnalytics) {
             return;
         }
 
         const properties = this.getMappedEventProps(eventInfo);
 
-        this._analytics.logEvent(eventInfo.name, eventInfo.properties || properties);
+        this.firebaseAnalytics.logEvent(eventInfo.name, eventInfo.properties || properties);
     }
 
     flush(): void {
         // Do nothing
     }
 
-    // tslint:disable-next-line: no-any
-    private getMappedEventProps(eventInfo?: EventTimingInfo): { [key: string]: any } {
+    private getMappedEventProps(eventInfo?: EventTimingInfo): { [key: string]: unknown } {
         if (!eventInfo) {
             return {};
         }
 
-        // tslint:disable-next-line: no-any
-        const mappedProps: { [key: string]: any } = {
+        const mappedProps: { [key: string]: unknown } = {
             ...eventInfo.properties,
             ...eventInfo.measurements
         };
 
-        if (this._userInfo.userId) {
-            mappedProps.user_id = this._userInfo.userId;
+        if (this.userInfo.userId) {
+            mappedProps.user_id = this.userInfo.userId;
         }
 
-        if (this._userInfo.accountId) {
-            mappedProps.account_id = this._userInfo.accountId;
+        if (this.userInfo.accountId) {
+            mappedProps.account_id = this.userInfo.accountId;
         }
 
         return mappedProps;
     }
 
-    // tslint:disable-next-line: no-any
-    private getMappedPageViewProps(pageViewInfo?: PageViewTimingInfo): { [key: string]: any } {
+    private getMappedPageViewProps(pageViewInfo?: PageViewTimingInfo): { [key: string]: unknown } {
         if (!pageViewInfo) {
             return {};
         }
 
-        // tslint:disable-next-line: no-any
-        const mappedProps: { [key: string]: any } = {
+        const mappedProps: { [key: string]: unknown } = {
             ...pageViewInfo.properties,
             ...pageViewInfo.measurements
         };
@@ -237,12 +246,12 @@ export class FirebaseAnalyticsLogger extends Logger {
             mappedProps.is_logged_in = pageViewInfo.is_logged_in;
         }
 
-        if (this._userInfo.userId) {
-            mappedProps.user_id = this._userInfo.userId;
+        if (this.userInfo.userId) {
+            mappedProps.user_id = this.userInfo.userId;
         }
 
-        if (this._userInfo.accountId) {
-            mappedProps.account_id = this._userInfo.accountId;
+        if (this.userInfo.accountId) {
+            mappedProps.account_id = this.userInfo.accountId;
         }
 
         return mappedProps;
