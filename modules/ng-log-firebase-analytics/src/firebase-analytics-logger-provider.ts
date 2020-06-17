@@ -9,13 +9,16 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Inject, Injectable, NgZone, PLATFORM_ID } from '@angular/core';
 
+import { EMPTY, Observable, of } from 'rxjs';
+import { map, observeOn, shareReplay, switchMap, tap } from 'rxjs/operators';
+
 import {
     EventInfo,
     EventTimingInfo,
-    Logger,
-    LoggerProvider,
     LogInfo,
     LogLevel,
+    Logger,
+    LoggerProvider,
     PageViewInfo,
     PageViewTimingInfo
 } from '@dagonmetric/ng-log';
@@ -23,98 +26,108 @@ import {
 import { analytics } from 'firebase/app';
 
 import { FirebaseAnalyticsLogger } from './firebase-analytics-logger';
-import { FIREBASE_ANALYTICS_LOGGER_OPTIONS_TOKEN, FirebaseAnalyticsLoggerOptions } from './firebase-analytics-logger-options';
+import { FIREBASE_ANALYTICS_LOGGER_OPTIONS, FirebaseAnalyticsLoggerOptions } from './firebase-analytics-logger-options';
 import { firebaseAppFactory } from './firebase-app-factory';
 import { UserInfo } from './user-info';
+import { ZoneScheduler } from './zone-helpers';
+
+declare let Zone: { current: unknown };
+
+const analyticsInstanceCache: { [key: string]: Observable<analytics.Analytics> } = {};
 
 /**
  * Logger provider factory for `FirebaseAnalyticsLogger`.
  */
 @Injectable({
-    providedIn: 'root'
+    providedIn: 'any'
 })
 export class FirebaseAnalyticsLoggerProvider extends Logger implements LoggerProvider {
-    private _currentLogger?: FirebaseAnalyticsLogger;
-    private readonly _analytics?: analytics.Analytics;
-    private readonly _userInfo: UserInfo = {};
+    private currentLoggerInternal?: FirebaseAnalyticsLogger;
+    private readonly userInfo: UserInfo = {};
+    private analytics$?: Observable<analytics.Analytics>;
+    private firebaseAnalytics?: analytics.Analytics;
+
+    private readonly isBrowser: boolean;
 
     get name(): string {
         return 'firebaseAnalytics';
     }
 
     get currentLogger(): FirebaseAnalyticsLogger {
-        if (this._currentLogger) {
-            return this._currentLogger;
+        if (this.currentLoggerInternal) {
+            return this.currentLoggerInternal;
         }
 
-        this._currentLogger = new FirebaseAnalyticsLogger(
-            '',
-            this._userInfo,
-            this._analytics);
+        this.currentLoggerInternal = new FirebaseAnalyticsLogger('', this.userInfo, this.firebaseAnalytics);
 
-        return this._currentLogger;
+        return this.currentLoggerInternal;
     }
 
     constructor(
-        // tslint:disable-next-line: ban-types
+        // eslint-disable-next-line @typescript-eslint/ban-types
         @Inject(PLATFORM_ID) platformId: Object,
-        private readonly _zone: NgZone,
-        @Inject(FIREBASE_ANALYTICS_LOGGER_OPTIONS_TOKEN) options: FirebaseAnalyticsLoggerOptions) {
+        private readonly ngZone: NgZone,
+        @Inject(FIREBASE_ANALYTICS_LOGGER_OPTIONS) private readonly options: FirebaseAnalyticsLoggerOptions
+    ) {
         super();
-        const isBrowser = isPlatformBrowser(platformId);
-        if (isBrowser && options.firebase && options.firebase.measurementId) {
-            this._analytics = this._zone.runOutsideAngular(() => {
-                const app = firebaseAppFactory(options);
+        this.isBrowser = isPlatformBrowser(platformId);
 
-                return app.analytics();
-            });
+        if (this.options.firebaseConfig.messagingSenderId) {
+            const messagingSenderId = this.options.firebaseConfig.messagingSenderId;
+
+            this.analytics$ = analyticsInstanceCache[messagingSenderId];
+            if (!this.analytics$) {
+                this.analytics$ = of(undefined).pipe(
+                    observeOn(this.ngZone.runOutsideAngular(() => new ZoneScheduler(Zone.current))),
+                    switchMap(() =>
+                        this.isBrowser && typeof window !== 'undefined' && 'indexedDB' in window
+                            ? import('firebase/analytics')
+                            : EMPTY
+                    ),
+                    map(() => firebaseAppFactory(this.options.firebaseConfig, this.ngZone, this.options.appName)),
+                    map((app) => app.analytics()),
+                    tap((a) => {
+                        if (this.options.analyticsCollectionEnabled === false) {
+                            a.setAnalyticsCollectionEnabled(false);
+                        }
+                    }),
+                    shareReplay({ bufferSize: 1, refCount: false })
+                );
+
+                analyticsInstanceCache[messagingSenderId] = this.analytics$;
+            }
         }
     }
 
+    ensureInitialized(): Observable<boolean> {
+        if (!this.analytics$) {
+            return of(false);
+        }
+
+        if (this.firebaseAnalytics != null) {
+            return of(true);
+        }
+
+        return this.analytics$.pipe(
+            tap((a) => {
+                this.firebaseAnalytics = a;
+            }),
+            map(() => this.firebaseAnalytics != null)
+        );
+    }
+
     createLogger(category: string): Logger {
-        return new FirebaseAnalyticsLogger(
-            category,
-            this._userInfo,
-            this._analytics);
+        return new FirebaseAnalyticsLogger(category, this.userInfo, this.firebaseAnalytics);
     }
 
     setUserProperties(userId: string, accountId?: string): void {
-        this._userInfo.userId = userId;
-        this._userInfo.accountId = accountId;
-
-        // if (!this._analytics$) {
-        //     return;
-        // }
-
-        // this._analytics$.pipe(
-        //     tap((analyticsService) => {
-        //         analyticsService.setUserId(userId);
-        //         if (accountId) {
-        //             analyticsService.setUserProperties({
-        //                 account_id: accountId
-        //             });
-        //         }
-
-        //     }),
-        //     runOutsideAngular(this._zone)
-        // ).subscribe();
+        this.userInfo.userId = userId;
+        this.userInfo.accountId = accountId;
     }
 
     clearUserProperties(): void {
-        this._userInfo.userId = undefined;
-        this._userInfo.accountId = undefined;
-
-        // if (!this._analytics$) {
-        //     return;
-        // }
-
-        // this._analytics$.pipe(
-        //     tap((analyticsService) => {
-        //         // tslint:disable-next-line: no-any
-        //         analyticsService.setUserId(null as any);
-        //     }),
-        //     runOutsideAngular(this._zone)
-        // ).subscribe();
+        this.userInfo.userId = undefined;
+        this.userInfo.accountId = undefined;
     }
 
     log(logLevel: LogLevel, message: string | Error, logInfo?: LogInfo): void {
