@@ -7,6 +7,7 @@
  */
 
 export interface FirebaseConfig {
+    measurementId: string;
     apiKey?: string;
     projectId?: string;
     appId?: string;
@@ -14,6 +15,5 @@ export interface FirebaseConfig {
     databaseURL?: string;
     storageBucket?: string;
     messagingSenderId?: string;
-    measurementId?: string;
     [key: string]: string | undefined;
 }
