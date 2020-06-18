@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-// tslint:disable: no-floating-promises
 
 import { LogLevel } from '@dagonmetric/ng-log';
 
