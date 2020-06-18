@@ -1,4 +1,4 @@
-# Angular Firebase Analytics Implementation for NG-LOG
+# Angular Firebase Analytics Integration for NG-LOG
 
 [![GitHub Actions Status](https://github.com/DagonMetric/ng-log-firebase-analytics/workflows/Main%20Workflow/badge.svg)](https://github.com/DagonMetric/ng-log-firebase-analytics/actions)
 [![npm version](https://badge.fury.io/js/%40dagonmetric%2Fng-log-firebase-analytics.svg)](https://www.npmjs.com/package/@dagonmetric/ng-log-firebase-analytics)
@@ -34,8 +34,8 @@ import { FirebaseAnalyticsLoggerModule } from '@dagonmetric/ng-log-firebase-anal
 
     // ng-log modules
     LogModule,
-    FirebaseAnalyticsLoggerModule.config({
-      firebase : {
+    FirebaseAnalyticsLoggerModule.configure({
+      firebaseConfig : {
           apiKey: '<your_firebase_app_api_key>',
           projectId: '<your_firebase_project_id>',
           appId: '<your_firebase_app_id>',
@@ -49,6 +49,8 @@ import { FirebaseAnalyticsLoggerModule } from '@dagonmetric/ng-log-firebase-anal
 export class AppModule { }
 ```
 
+Live edit [app.module.ts in stackblitz](https://stackblitz.com/github/dagonmetric/ng-log-firebase-analytics/tree/master/samples/demo-app?file=src%2Fapp%2Fapp.module.ts)
+
 ### Usage (app.component.ts)
 
 ```typescript
@@ -61,53 +63,74 @@ import { LogService } from '@dagonmetric/ng-log';
   templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
-  constructor(private readonly _logService: LogService) { }
+  constructor(private readonly logService: LogService) { }
 
   ngOnInit(): void {
     // Track traces
-    this._logService.trace('Testing trace');
-    this._logService.debug('Testing debug');
-    this._logService.info('Testing info');
-    this._logService.warn('Testing warn');
+    this.logService.trace('Testing trace');
+    this.logService.debug('Testing debug');
+    this.logService.info('Testing info');
+    this.logService.warn('Testing warn');
 
     // Track exceptions
-    this._logService.error(new Error('Testing error'));
-    this._logService.fatal(new Error('Testing critical'));
+    this.logService.error(new Error('Testing error'));
+    this.logService.fatal(new Error('Testing critical'));
 
     // Track page view
-    this._logService.trackPageView({
+    this.logService.trackPageView({
       name: 'My Angular App',
       uri: '/home'
     });
 
     // Track page view with timing
-    this._logService.startTrackPage('about');
-    this._logService.stopTrackPage('about', { uri: '/about' });
+    this.logService.startTrackPage('about');
+    this.logService.stopTrackPage('about', { uri: '/about' });
 
     // Track custom event
-    this._logService.trackEvent({
+    this.logService.trackEvent({
       name: 'video_auto_play_start',
       properties: {
         non_interaction: true
       }
     });
 
+    // Track custom event with metrics
+    this.logService.trackEvent({
+      name: 'foo',
+      custom_map: {
+        dimension2: 'age',
+        metric5: 'avg_page_load_time'
+      },
+      measurements: {
+        avg_page_load_time: 1
+      },
+      properties: {
+        age: 12
+      }
+    });
+
     // Track custom event with timing
-    this._logService.startTrackEvent('video_auto_play');
-    this._logService.stopTrackEvent('video_auto_play', {
+    this.logService.startTrackEvent('video_auto_play');
+    this.logService.stopTrackEvent('video_auto_play', {
       properties: {
         non_interaction: true
       }
     });
 
     // Set user properties
-    this._logService.setUserProperties('<Authenticated User Id>', '<Account Id>');
+    this.logService.setUserProperties('<Authenticated User Id>', '<Account Id>');
 
     // Clear user properties
-    this._logService.clearUserProperties();
+    this.logService.clearUserProperties();
   }
 }
 ```
+
+Live edit [app.component.ts in stackblitz](https://stackblitz.com/github/dagonmetric/ng-log-firebase-analytics/tree/master/samples/demo-app?file=src%2Fapp%2Fapp.component.ts)
+
+## Samples
+
+* Demo app [view source](https://github.com/DagonMetric/ng-log-firebase-analytics/tree/master/samples/demo-app) / [live edit in stackblitz](https://stackblitz.com/github/dagonmetric/ng-log-firebase-analytics/tree/master/samples/demo-app)
 
 ## Related Projects
 
