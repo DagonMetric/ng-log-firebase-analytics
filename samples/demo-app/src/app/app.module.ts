@@ -6,6 +6,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { LogModule } from '@dagonmetric/ng-log';
 import { FirebaseAnalyticsLoggerModule } from '@dagonmetric/ng-log-firebase-analytics';
 
+import { environment } from '../environments/environment';
+
 import { AppComponent } from './app.component';
 
 @NgModule({
@@ -19,7 +21,10 @@ import { AppComponent } from './app.component';
         LogModule.withConfig({
             minLevel: 'debug'
         }),
-        FirebaseAnalyticsLoggerModule
+        FirebaseAnalyticsLoggerModule.configure({
+            debug: true,
+            firebaseConfig: environment.firebaseConfig
+        })
     ],
     bootstrap: [AppComponent]
 })
