@@ -10,7 +10,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Inject, Injectable, NgZone, PLATFORM_ID } from '@angular/core';
 
 import { EMPTY, Observable, of } from 'rxjs';
-import { map, observeOn, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { filter, map, mapTo, observeOn, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 
 import {
     EventInfo,
@@ -33,8 +33,6 @@ import { ZoneScheduler } from './zone-helpers';
 
 declare let Zone: { current: unknown };
 
-const analyticsInstanceCache: { [key: string]: Observable<analytics.Analytics> } = {};
-
 /**
  * Logger provider factory for `FirebaseAnalyticsLogger`.
  */
@@ -44,7 +42,7 @@ const analyticsInstanceCache: { [key: string]: Observable<analytics.Analytics> }
 export class FirebaseAnalyticsLoggerProvider extends Logger implements LoggerProvider {
     private currentLoggerInternal?: FirebaseAnalyticsLogger;
     private readonly userInfo: UserInfo = {};
-    private analytics$?: Observable<analytics.Analytics>;
+    private firebaseAnalytics$: Observable<analytics.Analytics>;
     private firebaseAnalytics?: analytics.Analytics;
 
     private readonly isBrowser: boolean;
@@ -72,47 +70,36 @@ export class FirebaseAnalyticsLoggerProvider extends Logger implements LoggerPro
         super();
         this.isBrowser = isPlatformBrowser(platformId);
 
-        if (this.options.firebaseConfig.measurementId) {
-            const measurementId = this.options.firebaseConfig.measurementId;
+        const analytics$ = of(undefined).pipe(
+            observeOn(this.ngZone.runOutsideAngular(() => new ZoneScheduler(Zone.current))),
+            tap(() => {
+                this.logInternal(LogLevel.Debug, `Initializing wtih ${this.options.firebaseConfig.measurementId}.`);
+                if (this.isBrowser && !('indexedDB' in window)) {
+                    this.logInternal(LogLevel.Warn, `The 'indexedDB' is not available.`);
+                }
+            }),
+            switchMap(() => (this.isBrowser && 'indexedDB' in window ? import('firebase/analytics') : EMPTY)),
+            map(() => firebaseAppFactory(this.options.firebaseConfig, this.ngZone, this.options.appName)),
+            map((app) => app.analytics()),
+            tap((a) => {
+                if (this.options.analyticsCollectionEnabled === false) {
+                    a.setAnalyticsCollectionEnabled(false);
+                }
+            }),
+            startWith((undefined as unknown) as analytics.Analytics),
+            shareReplay({ bufferSize: 1, refCount: false })
+        );
 
-            this.analytics$ = analyticsInstanceCache[measurementId];
-            if (!this.analytics$) {
-                this.analytics$ = of(undefined).pipe(
-                    observeOn(this.ngZone.runOutsideAngular(() => new ZoneScheduler(Zone.current))),
-                    switchMap(() =>
-                        this.isBrowser && typeof window !== 'undefined' && 'indexedDB' in window
-                            ? import('firebase/analytics')
-                            : EMPTY
-                    ),
-                    map(() => firebaseAppFactory(this.options.firebaseConfig, this.ngZone, this.options.appName)),
-                    map((app) => app.analytics()),
-                    tap((a) => {
-                        if (this.options.analyticsCollectionEnabled === false) {
-                            a.setAnalyticsCollectionEnabled(false);
-                        }
-                    }),
-                    shareReplay({ bufferSize: 1, refCount: false })
-                );
-
-                analyticsInstanceCache[measurementId] = this.analytics$;
-            }
-        }
+        this.firebaseAnalytics$ = analytics$.pipe(filter<analytics.Analytics>((a) => !!a));
     }
 
-    ensureInitialized(): Observable<boolean> {
-        if (!this.analytics$) {
-            return of(false);
-        }
-
-        if (this.firebaseAnalytics != null) {
-            return of(true);
-        }
-
-        return this.analytics$.pipe(
+    initialize(): Observable<void> {
+        return this.firebaseAnalytics$.pipe(
             tap((a) => {
                 this.firebaseAnalytics = a;
+                this.logInternal(LogLevel.Debug, 'Firebase analytics instance has been cached.');
             }),
-            map(() => this.firebaseAnalytics != null)
+            mapTo(void 0)
         );
     }
 
@@ -160,5 +147,18 @@ export class FirebaseAnalyticsLoggerProvider extends Logger implements LoggerPro
 
     flush(): void {
         this.currentLogger.flush();
+    }
+
+    private logInternal(logLevel: LogLevel, msg: string): void {
+        if (!this.options.debug) {
+            return;
+        }
+
+        if (logLevel === LogLevel.Warn) {
+            console.warn(`[FirebaseAnalyticsLoggerProvider] ${msg}`);
+        } else {
+            // eslint-disable-next-line no-console
+            console.log(`[FirebaseAnalyticsLoggerProvider] ${msg}`);
+        }
     }
 }
