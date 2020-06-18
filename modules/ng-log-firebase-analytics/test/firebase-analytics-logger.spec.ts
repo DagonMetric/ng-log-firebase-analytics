@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 // tslint:disable: no-floating-promises
 
 import { LogLevel } from '@dagonmetric/ng-log';
@@ -11,10 +12,7 @@ describe('FirebaseAnalyticsLogger', () => {
     let firebaseAnalytics: analytics.Analytics;
 
     beforeEach(() => {
-        firebaseAnalytics = jasmine.createSpyObj<analytics.Analytics>(
-            'analytics', [
-            'logEvent'
-        ]);
+        firebaseAnalytics = jasmine.createSpyObj<analytics.Analytics>('analytics', ['logEvent']);
 
         logger = new FirebaseAnalyticsLogger('test', {}, firebaseAnalytics);
     });
@@ -26,6 +24,7 @@ describe('FirebaseAnalyticsLogger', () => {
 
         logger.log(LogLevel.Trace, err, { properties });
         expect(firebaseAnalytics.logEvent).toHaveBeenCalledWith('trace', {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             message: `${err}`,
             level: 'trace',
             key1: 'value1'
@@ -61,6 +60,7 @@ describe('FirebaseAnalyticsLogger', () => {
 
         logger.log(LogLevel.Critical, err, { properties });
         expect(firebaseAnalytics.logEvent).toHaveBeenCalledWith('exception', {
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             description: `${err}`,
             fatal: true,
             key1: 'value1'
@@ -70,14 +70,16 @@ describe('FirebaseAnalyticsLogger', () => {
     it("should not track 'log' when 'logLevel' is 'None'", () => {
         logger.log(LogLevel.None, 'This is a message.');
 
-        // tslint:disable-next-line: no-any no-unsafe-any
-        expect((firebaseAnalytics.logEvent as any).calls.count()).toEqual(0);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
+        void expect((firebaseAnalytics.logEvent as any).calls.count()).toEqual(0);
     });
 
     it("should work with 'startTrackPage' and 'stopTrackPage'", () => {
         logger.startTrackPage('home');
         logger.stopTrackPage('home');
-        expect(firebaseAnalytics.logEvent).toHaveBeenCalled();
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+        void expect(firebaseAnalytics.logEvent).toHaveBeenCalled();
     });
 
     it("should work with 'trackPageView'", () => {
@@ -105,7 +107,9 @@ describe('FirebaseAnalyticsLogger', () => {
         const eventName = 'event1';
         logger.startTrackEvent(eventName);
         logger.stopTrackEvent(eventName);
-        expect(firebaseAnalytics.logEvent).toHaveBeenCalled();
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+        void expect(firebaseAnalytics.logEvent).toHaveBeenCalled();
     });
 
     it("should work with 'trackEvent'", () => {
