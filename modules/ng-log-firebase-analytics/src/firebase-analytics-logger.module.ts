@@ -14,10 +14,8 @@ import { FIREBASE_ANALYTICS_LOGGER_OPTIONS, FirebaseAnalyticsLoggerOptions } fro
 import { FirebaseAnalyticsLoggerProvider } from './firebase-analytics-logger-provider';
 
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-export function analyticsAppInitializerFactory(
-    loggerProvider: FirebaseAnalyticsLoggerProvider
-): () => Promise<boolean> {
-    const res = async () => loggerProvider.ensureInitialized().toPromise();
+export function analyticsAppInitializerFactory(loggerProvider: FirebaseAnalyticsLoggerProvider): () => Promise<void> {
+    const res = async () => loggerProvider.initialize().toPromise();
 
     return res;
 }
