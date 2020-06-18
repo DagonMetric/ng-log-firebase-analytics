@@ -24,7 +24,7 @@
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
             "main": "modules/ng-log-firebase-analytics/test.ts",
-            "tsConfig": "modules/ng-log-firebase-analytics/tsconfig-test.json",
+            "tsConfig": "modules/ng-log-firebase-analytics/tsconfig.test.json",
             "karmaConfig": "modules/ng-log-firebase-analytics/karma.conf.js",
             "codeCoverageExclude": [
               "**/test.ts",
