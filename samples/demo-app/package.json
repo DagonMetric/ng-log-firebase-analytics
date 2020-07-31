@@ -18,7 +18,7 @@
     "@angular/router": "^10.0.7",
     "@dagonmetric/ng-log": "^2.2.6",
     "@dagonmetric/ng-log-firebase-analytics": "^2.0.1",
-    "firebase": "^7.16.0",
+    "firebase": "^7.17.1",
     "rxjs": "^6.6.2",
     "tslib": "~2.0.0",
     "zone.js": "^0.10.3"
