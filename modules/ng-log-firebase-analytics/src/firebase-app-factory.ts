@@ -12,7 +12,6 @@ import * as firebase from 'firebase/app';
 
 import { FirebaseConfig } from './firebase-config';
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function firebaseAppFactory(options: FirebaseConfig, zone: NgZone, appName?: string): firebase.app.App {
     appName = appName || '[DEFAULT]';
 

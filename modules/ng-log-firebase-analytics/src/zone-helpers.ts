@@ -21,6 +21,7 @@ export class ZoneScheduler implements SchedulerLike {
         return this.delegate.now();
     }
 
+    // eslint-disable-next-line no-shadow
     schedule(work: (this: SchedulerAction<any>, state?: any) => void, delay?: number, state?: any): Subscription {
         const targetZone = this.zone;
 

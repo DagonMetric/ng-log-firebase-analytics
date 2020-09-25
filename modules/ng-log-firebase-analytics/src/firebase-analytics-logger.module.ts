@@ -13,7 +13,6 @@ import { LOGGER_PROVIDER } from '@dagonmetric/ng-log';
 import { FIREBASE_ANALYTICS_LOGGER_OPTIONS, FirebaseAnalyticsLoggerOptions } from './firebase-analytics-logger-options';
 import { FirebaseAnalyticsLoggerProvider } from './firebase-analytics-logger-provider';
 
-// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function analyticsAppInitializerFactory(loggerProvider: FirebaseAnalyticsLoggerProvider): () => Promise<void> {
     const res = async () => loggerProvider.initialize().toPromise();
 
