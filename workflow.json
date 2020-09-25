@@ -1,0 +1,45 @@
+{
+    "$schema": "./node_modules/lib-tools/schemas/schema.json",
+    "projects": {
+      "ng-log-firebase-analytics": {
+        "root": "modules/ng-log-firebase-analytics",
+        "tasks": {
+          "build": {
+            "outputPath": "../../dist/packages/ng-log-firebase-analytics",
+            "script": {
+              "compilations": "auto",
+              "umdId": "ngLog.firebaseAnalytics",
+              "externals": {
+                "@dagonmetric/ng-log": "ngLog",
+                "firebase": "firebase",
+                "firebase/app": "firebase.app",
+                "firebase/analytics": "firebase.analytics"
+              }
+            }
+          },
+          "test": {
+            "testIndexFile": "test.ts",
+            "tsConfig": "tsconfig.test.json",
+            "envOverrides": {
+              "ci": {
+                "codeCoverageExclude": [
+                  "**/test.ts",
+                  "**/index.ts",
+                  "**/public_api.ts"
+                ],
+                "reporters": [
+                  "junit",
+                  "coverage-istanbul"
+                ],
+                "browsers": [
+                  "ChromeHeadlessCI"
+                ],
+                "singleRun": true
+              }
+            }
+          }
+        }
+      }      
+    }
+  }
+  
