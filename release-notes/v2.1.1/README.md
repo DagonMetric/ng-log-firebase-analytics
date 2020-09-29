@@ -1,6 +1,5 @@
 ## Changes
 
-* Fix warning on metadata exports
 * Update package dependencies
 
 npm packages are available on:
