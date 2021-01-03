@@ -2,16 +2,16 @@
 
 import { LogLevel } from '@dagonmetric/ng-log';
 
-import { analytics } from 'firebase/app';
+import firebase from 'firebase/app';
 
 import { FirebaseAnalyticsLogger } from '../src/firebase-analytics-logger';
 
 describe('FirebaseAnalyticsLogger', () => {
     let logger: FirebaseAnalyticsLogger;
-    let firebaseAnalytics: analytics.Analytics;
+    let firebaseAnalytics: firebase.analytics.Analytics;
 
     beforeEach(() => {
-        firebaseAnalytics = jasmine.createSpyObj<analytics.Analytics>('analytics', ['logEvent']);
+        firebaseAnalytics = jasmine.createSpyObj<firebase.analytics.Analytics>('analytics', ['logEvent']);
 
         logger = new FirebaseAnalyticsLogger('test', {}, firebaseAnalytics);
     });
