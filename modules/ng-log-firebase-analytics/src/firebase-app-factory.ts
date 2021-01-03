@@ -8,7 +8,7 @@
 
 import { NgZone } from '@angular/core';
 
-import * as firebase from 'firebase/app';
+import firebase from 'firebase/app';
 
 import { FirebaseConfig } from './firebase-config';
 
