@@ -16,7 +16,7 @@ import {
     PageViewTimingInfo
 } from '@dagonmetric/ng-log';
 
-import { analytics } from 'firebase/app';
+import firebase from 'firebase/app';
 
 import { UserInfo } from './user-info';
 
@@ -29,7 +29,7 @@ export class FirebaseAnalyticsLogger extends Logger {
     constructor(
         readonly name: string,
         private readonly userInfo: UserInfo,
-        private readonly firebaseAnalytics?: analytics.Analytics
+        private readonly firebaseAnalytics?: firebase.analytics.Analytics
     ) {
         super();
     }
