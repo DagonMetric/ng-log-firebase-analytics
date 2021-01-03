@@ -23,7 +23,7 @@ import {
     PageViewTimingInfo
 } from '@dagonmetric/ng-log';
 
-import { analytics } from 'firebase/app';
+import firebase from 'firebase/app';
 
 import { FirebaseAnalyticsLogger } from './firebase-analytics-logger';
 import { FIREBASE_ANALYTICS_LOGGER_OPTIONS, FirebaseAnalyticsLoggerOptions } from './firebase-analytics-logger-options';
@@ -42,8 +42,8 @@ declare let Zone: { current: unknown };
 export class FirebaseAnalyticsLoggerProvider extends Logger implements LoggerProvider {
     private currentLoggerInternal?: FirebaseAnalyticsLogger;
     private readonly userInfo: UserInfo = {};
-    private firebaseAnalytics$: Observable<analytics.Analytics>;
-    private firebaseAnalytics?: analytics.Analytics;
+    private firebaseAnalytics$: Observable<firebase.analytics.Analytics>;
+    private firebaseAnalytics?: firebase.analytics.Analytics;
 
     private readonly isBrowser: boolean;
 
@@ -86,11 +86,11 @@ export class FirebaseAnalyticsLoggerProvider extends Logger implements LoggerPro
                     a.setAnalyticsCollectionEnabled(false);
                 }
             }),
-            startWith((undefined as unknown) as analytics.Analytics),
+            startWith((undefined as unknown) as firebase.analytics.Analytics),
             shareReplay({ bufferSize: 1, refCount: false })
         );
 
-        this.firebaseAnalytics$ = analytics$.pipe(filter<analytics.Analytics>((a) => !!a));
+        this.firebaseAnalytics$ = analytics$.pipe(filter<firebase.analytics.Analytics>((a) => !!a));
     }
 
     initialize(): Observable<void> {
