@@ -23,7 +23,7 @@
     "@angular/common": "^11.2.14",
     "@angular/core": "^11.2.14",
     "@dagonmetric/ng-log": "^2.3.3",
-    "firebase": "^8.6.8",
+    "firebase": "^8.7.0",
     "rxjs": "^6.6.7",
     "tslib": "~2.3.0"
   },
